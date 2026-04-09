@@ -1,0 +1,4 @@
+org/paybridge/model/ISOMessage.class
+org/paybridge/json/JsonConvert.class
+org/paybridge/annotation/ISOField.class
+org/paybridge/Main.class
