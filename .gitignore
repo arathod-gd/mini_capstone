@@ -1,0 +1,7 @@
+#Ignore enviornment variables
+.env
+
+#Ignore targer folder
+/target
+
+
