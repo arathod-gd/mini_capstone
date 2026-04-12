@@ -276,10 +276,14 @@
 //    }
 //}
 
+
+/// second update
+
 package org.paybridge.parser;
 
 import org.paybridge.annotation.ISOField;
 import org.paybridge.enums.LengthType;
+import org.paybridge.exceptions.ISOParserException;
 import org.paybridge.model.ISOMessage;
 import org.paybridge.util.*;
 
@@ -321,7 +325,7 @@ public class ISOParser {
 
             int fieldNumber = annotation.fieldNumber();
             int fieldLength = annotation.length();
-            LengthType LengthType = annotation.type();
+            LengthType lengthType = annotation.type();
 
             ValidationUtil.validateFieldNumber(fieldNumber);
 
@@ -331,19 +335,14 @@ public class ISOParser {
             }
 
             // Validate pointer depending on type
-            int consumedLength = fieldLength;
+            int consumedLength = FieldParserUtil.getConsumedLength(
+                    input,
+                    pointer,
+                    fieldLength,
+                    lengthType
+            );
 
-            if (LengthType == LengthType.LLVAR) {
-                consumedLength = 2 + Integer.parseInt(
-                        input.substring(pointer, pointer + 2)
-                );
-            }
-            else if (LengthType == LengthType.LLLVAR) {
-                consumedLength = 3 + Integer.parseInt(
-                        input.substring(pointer, pointer + 3)
-                );
-            }
-
+// 3. Now validate that the actual field data fits within the string
             ValidationUtil.validatePointer(
                     pointer,
                     consumedLength,
@@ -356,7 +355,7 @@ public class ISOParser {
                     input,
                     pointer,
                     fieldLength,
-                    LengthType
+                    lengthType
             );
 
             // Move pointer
@@ -364,23 +363,23 @@ public class ISOParser {
                     input,
                     pointer,
                     fieldLength,
-                    LengthType
+                    lengthType
             );
 
             // Set value using reflection
             field.setAccessible(true);
             field.set(isoMessage, value);
 
-            LoggerUtil.logParsedField(
-                    mti,
-                    bitmapHex,
-                    bitmapBinary,
-                    fieldNumber,
-                    field.getName(),
-                    consumedLength,
-                    value,
-                    pointer
-            );
+//            LoggerUtil.logParsedField(
+//                    mti,
+//                    bitmapHex,
+//                    bitmapBinary,
+//                    fieldNumber,
+//                    field.getName(),
+//                    consumedLength,
+//                    value,
+//                    pointer
+//            );
         }
 
         return isoMessage;

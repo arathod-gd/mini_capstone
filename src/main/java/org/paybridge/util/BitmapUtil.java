@@ -1,5 +1,7 @@
 package org.paybridge.util;
 
+import org.paybridge.exceptions.ISOParserException;
+
 import java.math.BigInteger;
 
 public class BitmapUtil {
@@ -18,11 +20,18 @@ public class BitmapUtil {
          * total count (64+64+64=192) bit with hex length 16+32+48=96, we can easily handle all 3 bitmaps with this method by changing the length and hex input accordingly
          */
 
-        return String.format("%64s",
-                        new BigInteger(hex, 16).toString(2))
-                .replace(' ', '0');
+        try {
+            return String.format("%64s",
+                            new BigInteger(hex, 16).toString(2))
+                    .replace(' ', '0');
+        } catch (NumberFormatException ex) {
+            throw new ISOParserException(
+                    "INVALID_BITMAP",
+                    "Bitmap contains non-hex characters",
+                    1
+            );
+        }
     }
-
 
     /*
      * Check if Field Exists in Bitmap
