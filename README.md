@@ -76,6 +76,96 @@ The repository also contains database-assignment demos and scripts:
 - [scripts/sql/02-populate-settlement-events.sql](/Users/arathod/Downloads/mini-capstone-project/scripts/sql/02-populate-settlement-events.sql)
 - [scripts/sql/03-index-experiments.sql](/Users/arathod/Downloads/mini-capstone-project/scripts/sql/03-index-experiments.sql)
 
+## Database Assignment Verification
+
+Use this checklist to confirm the task is fully completed.
+
+### 1. Start PostgreSQL
+
+```bash
+docker compose up -d database
+```
+
+Expected:
+
+- the container starts successfully
+- PostgreSQL listens on `localhost:5432`
+
+### 2. Check Consistency Demo
+
+```bash
+mvn -q exec:java -Dexec.mainClass=org.paybridge.db.demo.TransactionConsistencyDemo
+```
+
+Task is correct if:
+
+- the first scenario shows an inconsistent result after failure without a transaction
+- total balance drops from `2000.00` to `1700.00`
+- the second scenario rolls back and keeps total balance at `2000.00`
+
+### 3. Check Isolation Level Demo
+
+```bash
+mvn -q exec:java -Dexec.mainClass=org.paybridge.db.demo.IsolationLevelDemo
+```
+
+Task is correct if:
+
+- under `READ COMMITTED`, the second count is larger than the first count
+- under `REPEATABLE READ`, both counts stay the same
+
+Typical expected output:
+
+```text
+Default isolation (READ COMMITTED)
+  First count  = 3
+  Second count = 4
+
+Correct isolation for a stable settlement snapshot (REPEATABLE READ)
+  First count  = 3
+  Second count = 3
+```
+
+### 4. Load Large Dataset
+
+```bash
+psql -U postgres -d mini_capstone_db -f scripts/sql/02-populate-settlement-events.sql
+```
+
+Task is correct if:
+
+- the script finishes successfully
+- `settlement_events` contains `2000000` rows
+
+Optional check:
+
+```bash
+psql -U postgres -d mini_capstone_db -c "SELECT COUNT(*) FROM settlement_events;"
+```
+
+### 5. Check Index Experiments
+
+```bash
+psql -U postgres -d mini_capstone_db -f scripts/sql/03-index-experiments.sql
+```
+
+Task is correct if:
+
+- before creating `idx_settlement_terminal_id`, PostgreSQL uses a sequential scan for the terminal lookup
+- after creating `idx_settlement_terminal_id`, PostgreSQL uses an index-based plan
+- the compound index `(merchant_id, business_date, response_code)` works best when the query uses all columns
+- the same compound index is still useful for left-prefix queries
+- queries that skip the leading column are not helped much by that compound index
+
+### 6. Final Check
+
+The task is complete when all of these are true:
+
+- both JDBC demos run successfully
+- the observed outputs match [docs/database-assignment-report.md](/Users/arathod/Downloads/mini-capstone-project/docs/database-assignment-report.md)
+- the bulk-load script inserts 2 million rows
+- the execution plans confirm the expected index behavior
+
 ## Run The Project
 
 Start the CLI parser:
