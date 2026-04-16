@@ -68,6 +68,14 @@ When the CLI starts, it connects to `APP_DB_NAME` and stores every parse attempt
 - the JSON payload returned by the parser
 - the parser error code when applicable
 
+The repository also contains database-assignment demos and scripts:
+
+- [docs/database-assignment-report.md](/Users/arathod/Downloads/mini-capstone-project/docs/database-assignment-report.md)
+- `org.paybridge.db.demo.TransactionConsistencyDemo`
+- `org.paybridge.db.demo.IsolationLevelDemo`
+- [scripts/sql/02-populate-settlement-events.sql](/Users/arathod/Downloads/mini-capstone-project/scripts/sql/02-populate-settlement-events.sql)
+- [scripts/sql/03-index-experiments.sql](/Users/arathod/Downloads/mini-capstone-project/scripts/sql/03-index-experiments.sql)
+
 ## Run The Project
 
 Start the CLI parser:
